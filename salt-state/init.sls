@@ -1,0 +1,45 @@
+# IDH State
+
+
+# Create a config directory
+temp:
+  file.directory:
+    - name: /opt/so/config/idh
+    - user: 939
+    - group: 939
+    - makedirs: True
+
+# Create a config directory
+configdir:
+  file.directory:
+    - name: /nsm/idh
+    - user: 939
+    - group: 939
+    - makedirs: True
+
+# Sync IDH files
+idhfiles:
+  file.recurse:
+    - name: /opt/so/config/idh
+    - user: 0
+    - group: 0
+    - file_mode: 755
+    - source: salt://idh
+
+# Build IDH Docker
+so-idh:
+  docker_image.present:
+    - build: /opt/so/saltstack/local/salt/idh
+    - tag: latest
+
+
+
+so-idh-run:
+  docker_container.running:
+    - image: so-idh
+    - name: so-idh
+    - detach: True
+    - network_mode: host
+    - binds:
+      - /nsm/idh:/var/tmp:rw
+      - /opt/so/conf/idh/opencanary.conf:/etc/opencanaryd/opencanary.conf:ro
