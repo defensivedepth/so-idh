@@ -4,7 +4,7 @@
 # Create a config directory
 temp:
   file.directory:
-    - name: /opt/so/config/idh
+    - name: /opt/so/conf/idh
     - user: 939
     - group: 939
     - makedirs: True
@@ -20,7 +20,7 @@ configdir:
 # Sync IDH files
 idhfiles:
   file.recurse:
-    - name: /opt/so/config/idh
+    - name: /opt/so/conf/idh
     - user: 0
     - group: 0
     - file_mode: 755
