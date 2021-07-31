@@ -25,6 +25,8 @@ idhfiles:
     - group: 0
     - file_mode: 755
     - source: salt://idh
+    - replace: False
+    - template: jinja
 
 # Build IDH Docker
 so-idh:

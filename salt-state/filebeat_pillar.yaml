@@ -1,0 +1,21 @@
+filebeat:
+  config:
+    inputs:
+      - type: log
+        paths:
+          - /nsm/idh/opencanary.log
+        fields:
+          module: idh
+          dataset: opencanary
+          category: host
+          tags: beat-ext
+
+        processors:
+          - drop_fields:
+              fields: '["source", "prospector", "input", "offset", "beat"]'
+
+        fields_under_root: true
+        clean_removed: false
+        close_removed: false
+        json.keys_under_root: true
+        json.add_error_key: true
