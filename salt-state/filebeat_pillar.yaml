@@ -5,8 +5,8 @@ filebeat:
         paths:
           - /nsm/idh/opencanary.log
         fields:
-          module: idh
-          dataset: opencanary
+          module: opencanary
+          dataset: idh
           category: host
           tags: beat-ext
 

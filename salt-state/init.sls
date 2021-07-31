@@ -34,8 +34,7 @@ so-idh:
     - build: /opt/so/saltstack/local/salt/idh
     - tag: latest
 
-
-
+# Set IDH Docker to run
 so-idh-run:
   docker_container.running:
     - image: so-idh

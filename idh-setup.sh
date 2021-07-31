@@ -12,7 +12,7 @@ sudo so-firewall addportgroup idh
 sudo so-firewall addport idh tcp 21
 
 sudo so-firewall addhostgroup idh-hosts
-sudo so-firewall includehost idh-hosts 192.168.80.7
+sudo so-firewall includehost idh-hosts 0.0.0.0
 
 Insert the following into the minion SLS:
 
