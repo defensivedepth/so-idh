@@ -10,7 +10,4 @@ RUN pip install opencanary
 
 ADD supervise-opencanary.conf /etc/supervisor/conf.d/supervise-opencanary.conf
 
-ADD startcanary.sh /opt/opencanary/scripts/startcanary.sh
-RUN chmod +x /opt/opencanary/scripts/startcanary.sh
-
 CMD ["/usr/bin/supervisord", "-n"]

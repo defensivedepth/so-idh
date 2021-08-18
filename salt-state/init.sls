@@ -24,7 +24,7 @@ idhfiles:
     - user: 0
     - group: 0
     - file_mode: 755
-    - source: salt://idh
+    - source: salt://idh/config
     - replace: False
     - template: jinja
 

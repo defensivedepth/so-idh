@@ -1,0 +1,8 @@
+firewall:
+  assigned_hostgroups:
+    chain:
+      INPUT:
+        hostgroups:
+          idh-hosts:
+            portgroups:
+              - portgroups.idh
