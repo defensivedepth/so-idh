@@ -11,7 +11,7 @@ require_manager
 # Usage Instructions
 if [ $# -lt 1 ]; then
   echo ""
-  echo "No Input Found - Usage: $0 <forward_node_hostname>"
+  echo "No Input Found --> Usage: $0 <forward_node_hostname>"
   echo ""
   echo "--Available Forward Nodes--"
   echo ""
@@ -40,13 +40,13 @@ else
     exit
 fi
 
-
 # TODO Disable Sensor services on the Forward Node
 
 
 # Copy over the IDH Salt state & Apply it to the Forward Node
 mkdir -p /opt/so/saltstack/local/salt/idh/
 cp -rp ./salt-state/* /opt/so/saltstack/local/salt/idh/
+salt-cp "$sensor_saltid" -C ./salt-state/* /opt/so/saltstack/local/salt/idh/
 echo "Applying the IDH state on the Forward Node - this will take some time..."
 salt "$sensor_saltid" state.apply idh
 
