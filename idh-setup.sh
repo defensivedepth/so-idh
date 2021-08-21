@@ -47,8 +47,10 @@ fi
 mkdir -p /opt/so/saltstack/local/salt/idh/
 cp -rp ./salt-state/* /opt/so/saltstack/local/salt/idh/
 salt-cp "$sensor_saltid" -C ./salt-state/* /opt/so/saltstack/local/salt/idh/
+echo $?
 echo "Applying the IDH state on the Forward Node - this will take some time..."
 salt "$sensor_saltid" state.apply idh
+echo $?
 
 # Setup IDH Firewall rules
 minion_sls=/opt/so/saltstack/local/pillar/minions/${sensor_saltid}.sls
@@ -64,6 +66,7 @@ else
   cat ./files/firewall-config >> $minion_sls
   salt "$sensor_saltid" state.apply firewall
 fi
+echo $?
 
 # Setup Filebeat Pipeline
 if grep -q "filebeat" < "$minion_sls"; then
@@ -73,6 +76,11 @@ else
   cat ./files/filebeat-config >> $minion_sls
   salt "$sensor_saltid" state.apply filebeat
 fi
+echo $?
+
+# Import Plays
+cp -r ./files/*.yml /opt/so/conf/soctopus/sigma-import/
+so-playbook-import True
 
 echo ""
 echo "-=== IDH Setup Complete on $sensor_saltid ===-"
