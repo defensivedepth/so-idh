@@ -4,6 +4,14 @@
 
 . /usr/sbin/so-common
 
+function check_exit_code {
+  if [ $? -ne 0 ]; then
+    echo ""
+    echo "Error detected during Setup, exiting now..." 
+    exit 1
+  fi
+}
+
 # Check to see if this is a Manager 
 echo ""
 require_manager
@@ -34,7 +42,9 @@ if [[ "$node_exists" == *"True"* ]]; then
    echo "Specified Forward Node found & is up... Continuing."
    echo ""
 else
+    echo ""
     echo "Error - Hostname does not match any Forward Nodes in the Grid or the Node is down"
+    echo ""
     echo "Note: Hostname is case sensitive."
     echo ""
     exit
@@ -47,10 +57,10 @@ fi
 mkdir -p /opt/so/saltstack/local/salt/idh/
 cp -rp ./salt-state/* /opt/so/saltstack/local/salt/idh/
 salt-cp "$sensor_saltid" -C ./salt-state/* /opt/so/saltstack/local/salt/idh/
-echo $?
+check_exit_code 
 echo "Applying the IDH state on the Forward Node - this will take some time..."
-salt "$sensor_saltid" state.apply idh
-echo $?
+salt "$sensor_saltid" state.apply idh queue=True
+check_exit_code 
 
 # Setup IDH Firewall rules
 minion_sls=/opt/so/saltstack/local/pillar/minions/${sensor_saltid}.sls
@@ -64,9 +74,9 @@ else
   so-firewall addhostgroup idh-hosts
   so-firewall includehost idh-hosts 0.0.0.0/0
   cat ./files/firewall-config >> $minion_sls
-  salt "$sensor_saltid" state.apply firewall
+  salt "$sensor_saltid" state.apply firewall queue=True
 fi
-echo $?
+check_exit_code
 
 # Setup Filebeat Pipeline
 if grep -q "filebeat" < "$minion_sls"; then
@@ -74,13 +84,14 @@ if grep -q "filebeat" < "$minion_sls"; then
   echo "Filebeat config already included in minion file - skipping this step..."
 else
   cat ./files/filebeat-config >> $minion_sls
-  salt "$sensor_saltid" state.apply filebeat
+  salt "$sensor_saltid" state.apply filebeat queue=True
 fi
-echo $?
+check_exit_code
 
 # Import Plays
 cp -r ./files/*.yml /opt/so/conf/soctopus/sigma-import/
 so-playbook-import True
+check_exit_code
 
 echo ""
 echo "-=== IDH Setup Complete on $sensor_saltid ===-"
