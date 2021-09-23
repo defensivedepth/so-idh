@@ -59,8 +59,20 @@ else
     exit
 fi
 
-# TODO Disable Sensor services on the Forward Node
-
+# Disable Sensor services on the Forward Node
+minion_sls=/opt/so/saltstack/local/pillar/minions/${sensor_saltid}.sls
+if grep -q "suricata" < "$minion_sls"; then
+  echo ""
+  echo "Sensor services already disabled - skipping this step..."
+else
+  echo ""
+  echo "Disabling Sensor services on the Forward Node..."
+  # Delete steno pillar if found
+  sed -i '/steno/,+1 d' $minion_sls
+  # Add disabled services pillars
+  cat ./files/disable-services >> $minion_sls
+  salt "$sensor_saltid" state.apply suricata,zeek,pcap queue=True
+fi
 
 # Copy over the IDH Salt state & Apply it to the Forward Node
 mkdir -p /opt/so/saltstack/local/salt/idh/
@@ -72,7 +84,6 @@ salt "$sensor_saltid" state.apply idh queue=True
 check_exit_code 
 
 # Setup IDH Firewall rules
-minion_sls=/opt/so/saltstack/local/pillar/minions/${sensor_saltid}.sls
 if grep -q "firewall" < "$minion_sls"; then
   echo ""
   echo "Firewall rules already included in minion file - skipping this step..."
