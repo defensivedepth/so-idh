@@ -15,6 +15,15 @@ function check_exit_code {
 # Check to see if this is a Manager 
 echo ""
 require_manager
+echo ""
+
+# Check to see if the Manager is the minimum version needed (2.3.80)
+INSTALLEDVERSION=$(cat /etc/soversion)
+vercheck() {
+    [  "$1" = "`echo -e "$1\n$2" | sort -V | tail -n1`" ]
+}
+vercheck $INSTALLEDVERSION 2.2.80 && echo "Version check succeeded" || \
+ { echo "Minimum version not installed: 2.3.80 or greater required. Exiting..."; exit 1; }
 
 # Usage Instructions
 if [ $# -lt 1 ]; then
