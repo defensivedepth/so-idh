@@ -13,11 +13,12 @@
 # This is intended to build a quick prototype SO IDH.
 
 . /usr/sbin/so-common
+SETUPLOG=/root/idh-setup.log
 
 function check_exit_code {
   if [ $? -ne 0 ]; then
     echo ""
-    echo "Error detected during Setup, exiting now..." 
+    echo "Error detected during Setup, please check $SETUPLOG for details." 
     exit 1
   fi
 }
@@ -93,16 +94,16 @@ else
   sed -i '/steno/,+1 d' $minion_sls
   # Add disabled services pillars
   cat ./files/disable-services >> $minion_sls
-  salt "$sensor_saltid" state.apply suricata,zeek,pcap queue=True
+  salt "$sensor_saltid" state.apply suricata,zeek,pcap queue=True >> "$SETUPLOG" 2>&1
 fi
 
 # Copy over the IDH Salt state & Apply it to the Forward Node
 mkdir -p /opt/so/saltstack/local/salt/idh/
 cp -rp ./salt-state/* /opt/so/saltstack/local/salt/idh/
-salt-cp "$sensor_saltid" -C ./salt-state/* /opt/so/saltstack/local/salt/idh/
+salt-cp "$sensor_saltid" -C ./salt-state/* /opt/so/saltstack/local/salt/idh/  >> "$SETUPLOG" 2>&1
 check_exit_code 
 echo "Applying the IDH state on the Forward Node - this will take some time..."
-salt "$sensor_saltid" state.apply idh queue=True
+salt "$sensor_saltid" state.apply idh queue=True >> "$SETUPLOG" 2>&1
 check_exit_code 
 
 # Setup IDH Firewall rules
@@ -116,7 +117,7 @@ else
   so-firewall addhostgroup idh-hosts
   so-firewall includehost idh-hosts 0.0.0.0/0
   cat ./files/firewall-config >> $minion_sls
-  salt "$sensor_saltid" state.apply firewall queue=True
+  salt "$sensor_saltid" state.apply firewall queue=True  >> "$SETUPLOG" 2>&1
 fi
 check_exit_code
 
@@ -126,13 +127,13 @@ if grep -q "filebeat" < "$minion_sls"; then
   echo "Filebeat config already included in minion file - skipping this step..."
 else
   cat ./files/filebeat-config >> $minion_sls
-  salt "$sensor_saltid" state.apply filebeat queue=True
+  salt "$sensor_saltid" state.apply filebeat queue=True  >> "$SETUPLOG" 2>&1
 fi
 check_exit_code
 
 # Import Plays
 cp -r ./files/*.yml /opt/so/conf/soctopus/sigma-import/
-so-playbook-import True
+so-playbook-import True  >> "$SETUPLOG" 2>&1
 check_exit_code
 
 IDHIP=$(salt "$sensor_saltid" pillar.get sensor:mainip --out json | jq -r '.[]')
@@ -143,6 +144,8 @@ echo ""
 echo "Default IDH config:"
 echo "- SSH on TCP/2222 accessible 0.0.0.0/0"
 echo "- VNC on TCP/5900 accessible 0.0.0.0/0"
-echo ""
-echo "Refer to the docs for additional config options."
-echo ""
+printf "\nOpenCanary config is on the IDH Node in /opt/so/conf/idh/."
+printf "\nRun so-idh-apply-config on the Manager to apply config changes."
+printf "\nIf a new port is needed, add that as a parameter:"
+printf "\n so-idh-apply-config <Port Number>"
+printf "\n\nGood luck & have fun!\n\n"
