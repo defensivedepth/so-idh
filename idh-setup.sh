@@ -1,6 +1,16 @@
-# This is experimental!
-# This script will convert a Forward node into an IDH node
-
+# Originally developed by Josh Brower, @DefensiveDepth
+# Released under the MIT License, Copyright (c) 2021 Josh Brower
+#
+# VERSION .1
+# 
+# This experimental script will convert a Forward \
+# node into an Intrusion Detection Honeypot (IDH) node.
+#
+# This script should be run with sudo on the Manager.
+#
+# <-- Warnings and Disclaimers -->
+# This is experimental and a work in progress.
+# This is intended to build a quick prototype SO IDH.
 
 . /usr/sbin/so-common
 
@@ -22,8 +32,20 @@ INSTALLEDVERSION=$(cat /etc/soversion)
 vercheck() {
     [  "$1" = "`echo -e "$1\n$2" | sort -V | tail -n1`" ]
 }
-vercheck $INSTALLEDVERSION 2.2.80 && echo "Version check succeeded" || \
+vercheck $INSTALLEDVERSION 2.2.80 && printf "Version check succeeded\n" || \
  { echo "Minimum version not installed: 2.3.80 or greater required. Exiting..."; exit 1; }
+
+printf "\n$banner\n"
+printf "This experimental script will convert a Forward Node\n\
+into an Intrusion Detection Honeypot (IDH) Node.\n\
+It is experimental and a work in progress.\n"
+echo $banner
+read -p "Do you want to continue? (Y/N) " -n 1 -r
+echo    
+if [[ ! $REPLY =~ ^[Yy]$ ]]
+then
+    exit 1
+fi
 
 # Usage Instructions
 if [ $# -lt 1 ]; then
