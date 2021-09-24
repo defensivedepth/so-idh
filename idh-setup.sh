@@ -113,8 +113,10 @@ cp -r ./files/*.yml /opt/so/conf/soctopus/sigma-import/
 so-playbook-import True
 check_exit_code
 
+IDHIP=$(salt "$sensor_saltid" pillar.get sensor:mainip --out json | jq -r '.[]')
+
 echo ""
-echo "-=== IDH Setup Complete on $sensor_saltid ===-"
+echo "-=== IDH Setup Complete on $sensor_saltid - $IDHIP ===-"
 echo ""
 echo "Default IDH config:"
 echo "- SSH on TCP/2222 accessible 0.0.0.0/0"
