@@ -105,6 +105,16 @@ fi
 cp ./so-idh-apply-config /usr/sbin/
 chmod +x /usr/sbin/so-idh-apply-config
 
+# Replace default beats.common ingest pipeline
+if grep -q "containsKey" < "/opt/so/saltstack/default/salt/elasticsearch/files/ingest/beats.common"; then
+  echo "Ingest pipeline already up to date..."
+else
+  echo "Updating the Ingest pipeline..."
+  cat ./files/beats-common > /opt/so/saltstack/default/salt/elasticsearch/files/ingest/beats.common
+  so-elasticsearch-restart --force  >> "$SETUPLOG" 2>&1
+fi
+
+
 # Copy over the IDH Salt state & Apply it to the Forward Node
 mkdir -p /opt/so/saltstack/local/salt/idh/
 cp -rp ./salt-state/* /opt/so/saltstack/local/salt/idh/
