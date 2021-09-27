@@ -4,8 +4,7 @@ WORKDIR /root/
 
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 
-RUN apt update &&\
-	 apt-get install -y sudo vim build-essential libssl-dev libffi-dev python-dev libpcap-dev supervisor
+RUN apt update && apt-get install -y sudo supervisor && rm -rf /var/lib/apt/lists/*
 RUN pip install opencanary
 
 ADD supervise-opencanary.conf /etc/supervisor/conf.d/supervise-opencanary.conf
