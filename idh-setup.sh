@@ -36,18 +36,6 @@ vercheck() {
 vercheck $INSTALLEDVERSION 2.2.80 && printf "Version check succeeded\n" || \
  { echo "Minimum version not installed: 2.3.80 or greater required. Exiting..."; exit 1; }
 
-printf "\n$banner\n"
-printf "This experimental script will convert a Forward Node\n\
-into an Intrusion Detection Honeypot (IDH) Node.\n\
-It is experimental and a work in progress.\n"
-echo $banner
-read -p "Do you want to continue? (Y/N) " -n 1 -r
-echo    
-if [[ ! $REPLY =~ ^[Yy]$ ]]
-then
-    exit 1
-fi
-
 # Usage Instructions
 if [ $# -lt 1 ]; then
   echo ""
@@ -70,8 +58,24 @@ fi
 node_exists=$(salt "$sensor_saltid" test.ping)
 
 if [[ "$node_exists" == *"True"* ]]; then
+   # Get the Forward Node IP
+   IDHIP=$(salt "$sensor_saltid" pillar.get sensor:mainip --out json | jq -r '.[]')
    echo ""
-   echo "Specified Forward Node found & is up... Continuing."
+   printf "Specified Forward Node found & is up...\n"
+   printf "\n$banner\n"
+   printf "This experimental script will convert a Forward Node
+into an Intrusion Detection Honeypot (IDH) Node.
+It is experimental and a work in progress."
+   printf "\n\nWarning!!! This script will stop all sensor services 
+on the following Foward Node and convert it to an IDH Node:\n
+   $sensor_saltid - $IDHIP\n"
+   echo $banner
+   read -p "Do you want to continue? (Y/N) " -n 1 -r
+   echo    
+   if [[ ! $REPLY =~ ^[Yy]$ ]]
+   then
+      exit 1
+   fi
    echo ""
 else
     echo ""
@@ -135,8 +139,6 @@ check_exit_code
 cp -r ./files/*.yml /opt/so/conf/soctopus/sigma-import/
 so-playbook-import True  >> "$SETUPLOG" 2>&1
 check_exit_code
-
-IDHIP=$(salt "$sensor_saltid" pillar.get sensor:mainip --out json | jq -r '.[]')
 
 echo ""
 echo "-=== IDH Setup Complete on $sensor_saltid - $IDHIP ===-"
