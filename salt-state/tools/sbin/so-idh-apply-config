@@ -1,0 +1,22 @@
+#!/bin/bash
+
+. /usr/sbin/so-common
+CONFIGLOG=/root/idh-config.log
+
+# Check to see if this is a Manager 
+echo ""
+require_manager
+echo ""
+
+# Restart the IDH container
+salt "*_sensor" cmd.run "docker restart so-idh"   >> "$CONFIGLOG" 2>&1
+
+# If there is a port specified, add it to the port group
+if [ $# -eq 0 ]; then
+    echo ""
+else
+  printf "\nOpening up the specified port (TCP/$1) on the IDH Node...\n"
+  so-firewall addport idh tcp $1
+fi
+
+printf "\nIDH Configuration Applied & Restarted....\n\n"
