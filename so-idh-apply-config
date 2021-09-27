@@ -17,6 +17,7 @@ if [ $# -eq 0 ]; then
 else
   printf "\nOpening up the specified port (TCP/$1) on the IDH Node...\n"
   so-firewall addport idh tcp $1
+  salt "*_sensor" state.apply firewall queue=True  >> "$CONFIGLOG" 2>&1
 fi
 
 printf "\nIDH Configuration Applied & Restarted....\n\n"
