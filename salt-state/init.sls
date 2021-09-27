@@ -28,15 +28,6 @@ idhfiles:
     - replace: False
     - template: jinja
 
-# Sync some Utilities
-utilsyncscript:
-  file.recurse:
-    - name: /usr/sbin
-    - user: root
-    - group: root
-    - file_mode: 755
-    - source: salt://idh/tools/sbin
-
 # Build IDH Docker
 so-idh:
   docker_image.present:

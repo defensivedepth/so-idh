@@ -101,6 +101,10 @@ else
   salt "$sensor_saltid" state.apply suricata,zeek,pcap queue=True >> "$SETUPLOG" 2>&1
 fi
 
+# Copy over so-idh-apply-config to the Manager
+cp ./so-idh-apply-config /usr/sbin/
+chmod +x /usr/sbin/so-idh-apply-config
+
 # Copy over the IDH Salt state & Apply it to the Forward Node
 mkdir -p /opt/so/saltstack/local/salt/idh/
 cp -rp ./salt-state/* /opt/so/saltstack/local/salt/idh/
