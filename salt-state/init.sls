@@ -41,6 +41,7 @@ so-idh-run:
     - name: so-idh
     - detach: True
     - network_mode: host
+    - restart_policy: always
     - binds:
       - /nsm/idh:/var/tmp:rw
       - /opt/so/conf/idh/opencanary.conf:/etc/opencanaryd/opencanary.conf:ro
